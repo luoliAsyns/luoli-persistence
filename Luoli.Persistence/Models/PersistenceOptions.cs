@@ -19,4 +19,10 @@ public class PersistenceOptions
     /// Migration 程序集名称（可选）。
     /// </summary>
     public string? MigrationsAssembly { get; set; }
+
+    /// <summary>
+    /// 是否按 created_at 创建表分区（PostgreSQL 原生分区）。
+    /// 启用后需通过 Migration 手动创建分区。
+    /// </summary>
+    public bool PartitionByCreatedAt { get; set; }
 }

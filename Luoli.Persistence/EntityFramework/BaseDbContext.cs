@@ -32,18 +32,24 @@ public abstract class BaseDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // 为所有 BaseEntity 子类添加全局软删除查询过滤器
+        // 为所有 BaseEntity 子类添加全局软删除查询过滤器 + created_at B-tree 索引
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
             if (!typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
                 continue;
 
+            // 软删除查询过滤器
             var parameter = Expression.Parameter(entityType.ClrType, "e");
             var isDeletedProperty = Expression.Property(parameter, nameof(BaseEntity.IsDeleted));
             var notDeleted = Expression.Not(isDeletedProperty);
             var filter = Expression.Lambda(notDeleted, parameter);
 
-            modelBuilder.Entity(entityType.ClrType).HasQueryFilter(filter);
+            var entityBuilder = modelBuilder.Entity(entityType.ClrType);
+            entityBuilder.HasQueryFilter(filter);
+
+            // 默认 B-tree 索引 on created_at
+            entityBuilder.HasIndex(nameof(BaseEntity.CreatedAt))
+                .HasDatabaseName($"ix_{entityType.GetTableName()}_{NamingHelper.ToSnakeCase(nameof(BaseEntity.CreatedAt))}");
         }
     }
 

@@ -6,9 +6,10 @@
 
 - 提供统一实体基类 `BaseEntity`（Id / CreatedAt / UpdatedAt / CreatedBy / UpdatedBy / IsDeleted）
 - 提供 EF Core 审计拦截器（自动填充审计字段 + 软删除转换）
-- 提供 `BaseDbContext`（全局软删除查询过滤器 + snake_case 命名 + 默认查询过滤）
+- 提供 `BaseDbContext`（全局软删除查询过滤器 + snake_case 命名 + 默认查询过滤 + created_at B-tree 索引）
 - 提供泛型仓储 `IRepository<T>` / `Repository<T>`（CRUD + 分页查询）
 - 提供多数据库支持抽象（首期 PostgreSQL）
+- 提供 PostgreSQL 表分区辅助工具（按 created_at RANGE 分区）
 - 软删除：所有删除操作转为 `IsDeleted = true`，全局查询过滤器自动排除已删除记录
 
 ## 技术栈
@@ -22,8 +23,8 @@
 
 ```
 Luoli.Persistence/
-├── Models/                    # BaseEntity, PageResult<T>, IUserContext, PersistenceOptions
-├── EntityFramework/           # BaseDbContext, AuditInterceptor, IRepository<T>, Repository<T>
+├── Models/                    # BaseEntity, PageResult<T>, IUserContext, PersistenceOptions, PersistenceErrorCodes
+├── EntityFramework/           # BaseDbContext, AuditInterceptor, IRepository<T>, Repository<T>, NamingHelper, PartitionHelper
 └── Extensions/                # PersistenceExtensions（DI 注册）
 
 Luoli.Persistence.Demo.Host/   # Demo WebAPI，FastEndpoints + Code First
@@ -33,6 +34,8 @@ Luoli.Persistence.Tests/       # 单元测试 (xUnit)
 ## 关键约定
 
 - 所有实体继承 `BaseEntity`，主键为 `Guid`
+- 所有实体默认创建 `created_at` 列 B-tree 索引（命名 `ix_{table}_created_at`）
+- 可选通过 `PersistenceOptions.PartitionByCreatedAt` 启用按 `created_at` 分区
 - 软删除通过 `AuditInterceptor` 自动拦截 `Remove()` → 转为 `IsDeleted = true`
 - 查询默认追加 `IsDeleted == false` 条件；如表达式已含 `IsDeleted` 则以调用方为准
 - 列名全局使用 snake_case（通过 `EFCore.NamingConventions`）
