@@ -21,8 +21,8 @@ public class PersistenceOptions
     public string? MigrationsAssembly { get; set; }
 
     /// <summary>
-    /// 是否按 created_at 创建表分区（PostgreSQL 原生分区）。
-    /// 启用后需通过 Migration 手动创建分区。
+    /// created_at 分区粒度。默认 <see cref="PartitionGranularity.None"/>（不分区）。
+    /// 启用后通过 <see cref="EntityFramework.PartitionHelper"/> 生成 DDL，在 Migration 中手动执行。
     /// </summary>
-    public bool PartitionByCreatedAt { get; set; }
+    public PartitionGranularity CreatedAtPartitionGranularity { get; set; } = PartitionGranularity.None;
 }
