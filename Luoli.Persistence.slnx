@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Luoli.Persistence/Luoli.Persistence.csproj" />
+  <Project Path="Luoli.Persistence.Demo.Host/Luoli.Persistence.Demo.Host.csproj" />
+  <Project Path="Luoli.Persistence.Tests/Luoli.Persistence.Tests.csproj" />
+</Solution>
