@@ -2,6 +2,7 @@ using Luoli.Common.Logging;
 using Luoli.Common.Middleware;
 using Luoli.Persistence.Demo.Host.Data;
 using Luoli.Persistence.Extensions;
+using Luoli.Persistence.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,10 +20,12 @@ builder.AddLuoliCommon(options =>
 // 2. Luoli.Persistence 持久化
 builder.Services.AddLuoliPersistence<DemoDbContext>(options =>
 {
-    options.DatabaseProvider = "PostgreSQL";
+    options.DatabaseProvider = builder.Configuration.GetValue<string>("Persistence:DatabaseProvider") ?? "PostgreSQL";
     options.ConnectionString = builder.Configuration.GetConnectionString("Default")
                               ?? "Host=localhost;Port=5432;Database=luoli_persistence_demo;Username=postgres;Password=postgres";
     options.MigrationsAssembly = typeof(DemoDbContext).Assembly.FullName;
+    options.CreatedAtPartitionGranularity = builder.Configuration.GetValue<PartitionGranularity>(
+        "Persistence:CreatedAtPartitionGranularity");
 });
 
 // 3. FastEndpoints
