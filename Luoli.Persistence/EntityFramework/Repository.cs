@@ -21,9 +21,9 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
     /// <summary>
     /// 初始化仓储。
     /// </summary>
-    public Repository(BaseDbContext context)
+    public Repository(DbContext context)
     {
-        Context = context;
+        Context = (BaseDbContext)context;
         Set = context.Set<T>();
     }
 

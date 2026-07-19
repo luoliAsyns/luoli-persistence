@@ -46,7 +46,8 @@ public static class PersistenceExtensions
             dbOptions.UseSnakeCaseNamingConvention();
         });
 
-        // 将抽象 BaseDbContext 转发到具体 TDbContext，供 Repository 等内部依赖使用
+        // 将抽象 DbContext / BaseDbContext 转发到具体 TDbContext，供 Repository 等内部依赖使用
+        services.AddScoped<DbContext>(sp => sp.GetRequiredService<TDbContext>());
         services.AddScoped<BaseDbContext>(sp => sp.GetRequiredService<TDbContext>());
 
         // 注册开放泛型仓储
