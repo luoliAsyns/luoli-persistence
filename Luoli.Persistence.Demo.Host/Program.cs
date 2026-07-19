@@ -17,16 +17,16 @@ builder.AddLuoliCommon(options =>
     };
 });
 
-// 2. Luoli.Persistence 持久化
-builder.Services.AddLuoliPersistence<DemoDbContext>(options =>
+// 2. Luoli.Persistence 持久化 — 默认值 + appsettings.json 覆盖
+var persistenceOptions = new PersistenceOptions
 {
-    options.DatabaseProvider = builder.Configuration.GetValue<string>("Persistence:DatabaseProvider") ?? "PostgreSQL";
-    options.ConnectionString = builder.Configuration.GetConnectionString("Default")
-                              ?? "Host=localhost;Port=5432;Database=luoli_persistence_demo;Username=postgres;Password=postgres";
-    options.MigrationsAssembly = typeof(DemoDbContext).Assembly.FullName;
-    options.CreatedAtPartitionGranularity = builder.Configuration.GetValue<PartitionGranularity>(
-        "Persistence:CreatedAtPartitionGranularity");
-});
+    MigrationsAssembly = typeof(DemoDbContext).Assembly.FullName
+};
+builder.Configuration.GetSection("Persistence").Bind(persistenceOptions);
+persistenceOptions.ConnectionString = builder.Configuration.GetConnectionString("Default")
+    ?? persistenceOptions.ConnectionString;
+
+builder.Services.AddLuoliPersistence<DemoDbContext>(persistenceOptions);
 
 // 3. FastEndpoints
 builder.Services.AddFastEndpoints();

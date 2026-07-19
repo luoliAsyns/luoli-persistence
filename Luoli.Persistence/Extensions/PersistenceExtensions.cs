@@ -15,14 +15,12 @@ public static class PersistenceExtensions
     /// </summary>
     /// <typeparam name="TDbContext">业务 DbContext 类型</typeparam>
     /// <param name="services">服务集合</param>
-    /// <param name="configure">配置回调</param>
+    /// <param name="options">持久化配置。推荐先 new 默认值，再用 IConfiguration.GetSection("Persistence").Bind(options) 覆盖。</param>
     public static IServiceCollection AddLuoliPersistence<TDbContext>(
         this IServiceCollection services,
-        Action<PersistenceOptions> configure)
+        PersistenceOptions options)
         where TDbContext : BaseDbContext
     {
-        var options = new PersistenceOptions();
-        configure(options);
 
         // 注册配置
         services.AddSingleton(options);
